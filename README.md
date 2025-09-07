@@ -1,73 +1,85 @@
-# Cегментация спутниковых снимков
+# CРµРіРјРµРЅС‚Р°С†РёСЏ СЃРїСѓС‚РЅРёРєРѕРІС‹С… СЃРЅРёРјРєРѕРІ
 
-Сервис осуществляет сегментацию спутниковых снимков и предоставляет REST API
-для пользования.
+РЎРµСЂРІРёСЃ РѕСЃСѓС‰РµСЃС‚РІР»СЏРµС‚ СЃРµРіРјРµРЅС‚Р°С†РёСЋ СЃРїСѓС‚РЅРёРєРѕРІС‹С… СЃРЅРёРјРєРѕРІ Рё РїСЂРµРґРѕСЃС‚Р°РІР»СЏРµС‚ REST API
+РґР»СЏ РїРѕР»СЊР·РѕРІР°РЅРёСЏ.
+РџСЂРёРјРµСЂ:
+![Alt text](contents/example_src.png)
+<p align="center"> РСЃС…РѕРґРЅРѕРµ РёР·РѕР±СЂР°Р¶РµРЅРёРµ </p>
 
-# Деплой
+![Alt text](contents/example_heatmap.png)
+<p align="center"> РўРµРїР»РѕРІР°СЏ РєР°СЂС‚Р° СѓРІРµСЂРµРЅРЅРѕСЃС‚Рё РјРѕРґРµР»Рё (logit + sigmoid) </p>
 
-Чтобы запустить сервис, склонируйте репозиторий.
-Cоздайте yaml-конфиг по примеру (находится в репозитории):
-host, port отвечают за параметры uvicorn-сервера
+![Alt text](contents/example_mask.png)
+<p align="center"> РЎРµРіРјРµРЅС‚Р°С†РёРѕРЅРЅР°СЏ РјР°СЃРєР° (t=0.5) </p>
+
+![Alt text](contents/example_overlayed.png)
+<p align="center"> РСЃС…РѕРґРЅРѕРµ РёР·РѕР±СЂР°Р¶РµРЅРёРµ + РјР°СЃРєР° </p>
+
+# Р”РµРїР»РѕР№
+
+Р§С‚РѕР±С‹ Р·Р°РїСѓСЃС‚РёС‚СЊ СЃРµСЂРІРёСЃ, СЃРєР»РѕРЅРёСЂСѓР№С‚Рµ СЂРµРїРѕР·РёС‚РѕСЂРёР№.
+CРѕР·РґР°Р№С‚Рµ yaml-РєРѕРЅС„РёРі РїРѕ РїСЂРёРјРµСЂСѓ (РЅР°С…РѕРґРёС‚СЃСЏ РІ СЂРµРїРѕР·РёС‚РѕСЂРёРё):
+host, port РѕС‚РІРµС‡Р°СЋС‚ Р·Р° РїР°СЂР°РјРµС‚СЂС‹ uvicorn-СЃРµСЂРІРµСЂР°
 ```yaml
 app:
-  host: 0.0.0.0
-  port: 8000
-  keep_alive: 60
+В  host: 0.0.0.0
+В  port: 8000
+В  keep_alive: 60
 
 models:
-  unet_fp16:
-    input_size: 384
-    batch_size: 20
-    tile_res: 512
-    to_resize: 384
-    overlap: 0.2
-    norm_mean: [0.4014, 0.4235, 0.3888]
-    norm_std: [0.1708, 0.1555, 0.1457]
+В  unet_fp16:
+В  В  input_size: 384
+В  В  batch_size: 20
+В  В  tile_res: 512
+В  В  to_resize: 384
+В  В  overlap: 0.2
+В  В  norm_mean: [0.4014, 0.4235, 0.3888]
+В  В  norm_std: [0.1708, 0.1555, 0.1457]
 
 inference:
-  execution_providers: ['CUDAExecutionProvider','CPUExecutionProvider']
-  enable_fallback: True
+В  execution_providers: ['CUDAExecutionProvider','CPUExecutionProvider']
+В  enable_fallback: True
 ```
 
-Для config.yaml и для каждой модели из *config:models* нужно определить переменную окружения с адресом .onnx файла в разделе *environment*. Этот путь должен вести к mounted volume из раздела *volumes*, в которых находятся модели и config.yaml.
-**Обратите внимание**, что название переменной окружения должно полностью совпадать с названием раздела config:models для конкретной модели (без учёта регистра). Пример: env=UNET_FP16 -> model=unet_fp16.
+Р”Р»СЏ config.yaml Рё РґР»СЏ РєР°Р¶РґРѕР№ РјРѕРґРµР»Рё РёР· *config:models* РЅСѓР¶РЅРѕ РѕРїСЂРµРґРµР»РёС‚СЊ РїРµСЂРµРјРµРЅРЅСѓСЋ РѕРєСЂСѓР¶РµРЅРёСЏ СЃ Р°РґСЂРµСЃРѕРј .onnx С„Р°Р№Р»Р° РІ СЂР°Р·РґРµР»Рµ *environment*. Р­С‚РѕС‚ РїСѓС‚СЊ РґРѕР»Р¶РµРЅ РІРµСЃС‚Рё Рє mounted volume РёР· СЂР°Р·РґРµР»Р° *volumes*, РІ РєРѕС‚РѕСЂС‹С… РЅР°С…РѕРґСЏС‚СЃСЏ РјРѕРґРµР»Рё Рё config.yaml.
+**РћР±СЂР°С‚РёС‚Рµ РІРЅРёРјР°РЅРёРµ**, С‡С‚Рѕ РЅР°Р·РІР°РЅРёРµ РїРµСЂРµРјРµРЅРЅРѕР№ РѕРєСЂСѓР¶РµРЅРёСЏ РґРѕР»Р¶РЅРѕ РїРѕР»РЅРѕСЃС‚СЊСЋ СЃРѕРІРїР°РґР°С‚СЊ СЃ РЅР°Р·РІР°РЅРёРµРј СЂР°Р·РґРµР»Р° config:models РґР»СЏ РєРѕРЅРєСЂРµС‚РЅРѕР№ РјРѕРґРµР»Рё (Р±РµР· СѓС‡С‘С‚Р° СЂРµРіРёСЃС‚СЂР°). РџСЂРёРјРµСЂ: env=UNET_FP16 -> model=unet_fp16.
 
 ```yaml
 services:
-  api:
-    ports:
-      - "8000:8000"
-    build: .
-    volumes:
-      - ./config.yaml:/mnt/configs/config.yaml
-      - ../models/production:/mnt/models
-    runtime: nvidia
-    environment:
-      - API_CONFIG=/mnt/configs/config.yaml
-      - UNET_FP16=/mnt/models/Unet_1.0_fp16.onnx
-    deploy:
-      resources:
-        limits:
-          memory: 8G
-          cpus: '6'
-        reservations:
-          devices:
-            - driver: nvidia
-              count: 1
-              capabilities: [gpu]
+В  api:
+В  В  ports:
+В  В  В  - "8000:8000"
+В  В  build: .
+В  В  volumes:
+В  В  В  - ./config.yaml:/mnt/configs/config.yaml
+В  В  В  - ../models/production:/mnt/models
+В  В  runtime: nvidia
+В  В  environment:
+В  В  В  - API_CONFIG=/mnt/configs/config.yaml
+В  В  В  - UNET_FP16=/mnt/models/Unet_1.0_fp16.onnx
+В  В  deploy:
+В  В  В  resources:
+В  В  В  В  limits:
+В  В  В  В  В  memory: 8G
+В  В  В  В  В  cpus: '6'
+В  В  В  В  reservations:
+В  В  В  В  В  devices:
+В  В  В  В  В  В  - driver: nvidia
+В  В  В  В  В  В  В  count: 1
+В  В  В  В  В  В  В  capabilities: [gpu]
 ```
 
-**Модели можно найти по адресу**: [text](https://drive.google.com/drive/folders/1WOoWfOzWk4i5dRhIm1OgfetGBQxVKbog?usp=sharing)
+**РњРѕРґРµР»Рё РјРѕР¶РЅРѕ РЅР°Р№С‚Рё РїРѕ Р°РґСЂРµСЃСѓ**: [text](https://drive.google.com/drive/folders/1WOoWfOzWk4i5dRhIm1OgfetGBQxVKbog?usp=sharing)
 
-Запуск сервисов:
+Р—Р°РїСѓСЃРє СЃРµСЂРІРёСЃРѕРІ:
 ```
 docker-compose up -d
 ```
 
-# Использование
-API можно запустить из Swagger: ``` http://127.0.0.1:8000/docs ```
+# РСЃРїРѕР»СЊР·РѕРІР°РЅРёРµ
+API РјРѕР¶РЅРѕ Р·Р°РїСѓСЃС‚РёС‚СЊ РёР· Swagger: ``` http://127.0.0.1:8000/docs ```
 
-Или пользоваться  cURL:
+РР»Рё РїРѕР»СЊР·РѕРІР°С‚СЊСЃСЏ  cURL:
 ```bash
 curl -X 'POST' \
   'http://127.0.0.1:8000/segment_buildings' \
@@ -82,4 +94,4 @@ curl -X 'POST' \
   -F 'filename=test' \
   \ -o test.zip
 ```
-См. Swagger docs для документации параметров запроса.
+РЎРј. Swagger docs РґР»СЏ РґРѕРєСѓРјРµРЅС‚Р°С†РёРё РїР°СЂР°РјРµС‚СЂРѕРІ Р·Р°РїСЂРѕСЃР°.
