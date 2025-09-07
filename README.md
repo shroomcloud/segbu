@@ -69,7 +69,7 @@ services:
               capabilities: [gpu]
 ```
 
-**Модели можно найти по адресу**: [text](https://drive.google.com/drive/folders/1WOoWfOzWk4i5dRhIm1OgfetGBQxVKbog?usp=sharing)
+**Модели можно найти по адресу**: [Google Drive](https://drive.google.com/drive/folders/1WOoWfOzWk4i5dRhIm1OgfetGBQxVKbog?usp=sharing)
 
 Запуск сервисов:
 ```
@@ -77,7 +77,7 @@ docker-compose up -d
 ```
 
 # Использование
-API можно запустить из Swagger: ``` http://127.0.0.1:8000/docs ```
+API можно запустить из Swagger UI: ``` http://127.0.0.1:8000/docs ```
 
 Или пользоваться  cURL:
 ```bash
@@ -94,4 +94,4 @@ curl -X 'POST' \
   -F 'filename=test' \
   \ -o test.zip
 ```
-См. Swagger docs для документации параметров запроса.
+См. Swagger UI для документации параметров запроса.
