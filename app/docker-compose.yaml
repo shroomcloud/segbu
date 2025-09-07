@@ -1,0 +1,22 @@
+services:
+  api:
+    ports:
+      - "8000:8000"
+    build: .
+    volumes:
+      - ./config.yaml:/mnt/configs/config.yaml
+      - ../models/production:/mnt/models
+    runtime: nvidia
+    environment:
+      - API_CONFIG=/mnt/configs/config.yaml
+      - UNET_FP16=/mnt/models/Unet_1.0_fp16.onnx
+    deploy:
+      resources:
+        limits:
+          memory: 8G
+          cpus: '6'
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [ gpu ]

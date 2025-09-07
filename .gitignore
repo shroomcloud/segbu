@@ -1,0 +1,11 @@
+__pycache__/
+.venv/
+data/
+checkpoints/
+.python-version
+artifacts/
+.gitignore
+.env
+*.lock
+/models/
+testing/

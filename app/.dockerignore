@@ -1,0 +1,13 @@
+README.md
+.env
+__pycache__/
+*.pyc
+testing/
+*.ipynb_checkpoints
+*.pt
+*.pth
+.venv/
+.vscode/
+docker-compose.yaml
+.python-version
+config.yaml
